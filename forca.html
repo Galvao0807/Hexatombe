@@ -6,11 +6,22 @@
   <title>Hexatombe — Forca</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    body{background:linear-gradient(180deg,#060607 0%,#0f0f10 100%);
+      color:#eee; font-family:Arial, sans-serif;
+      min-height:100vh; display:flex; flex-direction:column;
+      justify-content:center; align-items:center; text-align:center;}
+    .blood-drops{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .drop{position:absolute;background:radial-gradient(circle at 30% 20%,rgba(255,0,0,0.95),rgba(160,0,0,0.9) 45%,rgba(0,0,0,0) 70%);
+      border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+      box-shadow:0 10px 30px rgba(0,0,0,0.6);opacity:0.95;animation:drip linear forwards}
+    @keyframes drip{0%{transform:translateY(-10vh)}100%{transform:translateY(120vh);opacity:0}}
+  </style>
 </head>
-<body class="bg-dark text-light">
+<body>
   <div class="blood-drops"></div>
-  <header class="container py-4 text-center" style="position:relative;z-index:2">
+
+  <header>
     <h1 class="fw-bold text-danger">FORCA — Hexatombe</h1>
     <a href="index.html" class="btn btn-sm btn-outline-light mt-2">Voltar à Home</a>
   </header>
@@ -28,10 +39,44 @@
     </div>
   </main>
 
+  <footer class="text-center py-4 text-muted small">© Hexatombe</footer>
 
-  <footer class="text-center py-4 text-muted small" style="position:relative;z-index:2">© Hexatombe</footer>
+  <script>
+    // Gotas
+    const container=document.querySelector('.blood-drops');
+    function spawnDrop(){const d=document.createElement('div');d.className='drop';
+      d.style.left=Math.random()*100+'%';
+      d.style.width=30+Math.random()*40+'px';
+      d.style.height=60+Math.random()*80+'px';
+      d.style.animationDuration=(3+Math.random()*4)+'s';
+      container.appendChild(d);
+      setTimeout(()=>d.remove(),8000);}
+    setInterval(spawnDrop,600);
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="assets/js/forca.js"></script>
+    // Forca
+    const words=['MORTE','HEXAGON','TUMULO','SANGUE','CRIPTA','SOMBRA'];
+    let chosen='',errors=0,correct=[];const maxErrors=6;
+    function pick(){chosen=words[Math.floor(Math.random()*words.length)];
+      correct=Array(chosen.length).fill(false);errors=0;
+      document.getElementById('errors').textContent=errors;
+      document.getElementById('message').textContent='';
+      renderWord();renderLetters();}
+    function renderWord(){document.getElementById('wordDisplay').textContent=
+      chosen.split('').map((c,i)=>correct[i]?c:'_').join(' ');}
+    function renderLetters(){const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+      const c=document.getElementById('letters');c.innerHTML='';
+      letters.forEach(l=>{const b=document.createElement('button');
+        b.className='btn btn-sm btn-outline-light me-1 mb-1';b.textContent=l;
+        b.onclick=()=>tryLetter(l,b);c.appendChild(b);});}
+    function tryLetter(l,b){b.disabled=true;let found=false;
+      for(let i=0;i<chosen.length;i++){if(chosen[i]===l){correct[i]=true;found=true;}}
+      if(!found){errors++;document.getElementById('errors').textContent=errors;}
+      renderWord();checkState();}
+    function checkState(){if(correct.every(Boolean)){document.getElementById('message').textContent='Você venceu!';disable();}
+      else if(errors>=maxErrors){document.getElementById('message').textContent='Game Over! Palavra: '+chosen;disable();}}
+    function disable(){Array.from(document.querySelectorAll('#letters button')).forEach(b=>b.disabled=true);}
+    document.getElementById('resetBtn').addEventListener('click',()=>pick());
+    window.addEventListener('load',pick);
+  </script>
 </body>
 </html>
