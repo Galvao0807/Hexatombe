@@ -1,8 +1,0 @@
-const cells=Array.from(document.querySelectorAll('.cell'));const status=document.getElementById('status');let board=Array(9).fill(null);let turn='X';const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-const audioPlace=new Audio('assets/audio/place.mp3');const audioWin=new Audio('assets/audio/win.mp3');const audioDraw=new Audio('assets/audio/draw.mp3');
-function render(){cells.forEach((c,i)=>c.textContent=board[i]||'');const w=getWinner();if(w){status.textContent='Vencedor: '+w;audioWin.play();}else if(board.every(Boolean)){status.textContent='Empate';audioDraw.play();}else{status.textContent='Turno: '+turn;}}
-function getWinner(){for(const [a,b,c] of wins){if(board[a]&&board[a]===board[b]&&board[a]===board[c])return board[a];}return null;}
-function cpuMove(){let move=null;for(const [a,b,c] of wins){if(board[a]==='O'&&board[b]==='O'&&!board[c])move=c;if(board[a]==='O'&&board[c]==='O'&&!board[b])move=b;if(board[b]==='O'&&board[c]==='O'&&!board[a])move=a;}if(move===null){for(const [a,b,c] of wins){if(board[a]==='X'&&board[b]==='X'&&!board[c])move=c;if(board[a]==='X'&&board[c]==='X'&&!board[b])move=b;if(board[b]==='X'&&board[c]==='X'&&!board[a])move=a;}}if(move===null){const free=board.map((v,i)=>v?null:i).filter(v=>v!==null);if(free.length>0)move=free[Math.floor(Math.random()*free.length)];}if(move!==null){board[move]='O';audioPlace.play();turn='X';render();}}
-cells.forEach((c,i)=>c.addEventListener('click',()=>{if(board[i]||getWinner()||turn!=='X')return;board[i]='X';audioPlace.play();turn='O';render();if(!getWinner()&&!board.every(Boolean))setTimeout(cpuMove,500);}));
-document.getElementById('restart').addEventListener('click',()=>{board=Array(9).fill(null);turn='X';render();});
-window.addEventListener('load',render);
